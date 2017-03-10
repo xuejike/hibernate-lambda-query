@@ -128,7 +128,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
                     if (val==null){
                         criteria.add(Restrictions.isNotNull(key));
                     }else{
-                        criteria.add(Restrictions.ne(key,likeMap.get(key)));
+                        criteria.add(Restrictions.ne(key,val));
                     }
                 }
 
