@@ -1,15 +1,14 @@
 package com.bidanet.hibernate.lambda.core;
 
 import com.bidanet.hibernate.lambda.common.PropertyNameTool;
-import com.bidanet.hibernate.lambda.proxy.MapListProxy;
-import com.bidanet.hibernate.lambda.proxy.MapObjectProxy;
-import com.bidanet.hibernate.lambda.proxy.Proxy;
+import com.bidanet.hibernate.lambda.query.*;
+import org.apache.commons.beanutils.ConstructorUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,35 +19,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
         CriteriaWhere<T>, CriteriaFirst<T> {
     protected Session session;
     protected Class<T> tClass;
-
-    // eq  等于
-    protected MapObjectProxy eqMapProxy=new MapObjectProxy();
-    protected Map<String,Object> eqMap=eqMapProxy.getMap();
-    protected T eqBean = Proxy.proxy(tClass,eqMapProxy);;
-
-    // like
-    protected MapObjectProxy likeMapProxy=new MapObjectProxy();
-    protected Map<String,Object> likeMap=likeMapProxy.getMap();
-    protected T likeBean=Proxy.proxy(tClass,likeMapProxy);
-
-    // ne  不等于
-    protected MapListProxy neMapListProxy=new MapListProxy();
-    protected Map<String, List<Object>> neMap=neMapListProxy.getMapList();
-    protected T neBean=Proxy.proxy(tClass,neMapListProxy);
-
-    // in
-
-    // 大于
-
-
-    // 小于
-
-    // 小于等于
-
-
-    //大于
-
-    // 大于等于
+    protected HashMap<Class,QueryAction<T>>queryActionMap=new HashMap<>();
 
 
 
@@ -72,32 +43,17 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> eq(QueryOne<T> queryOne){
-
-        queryOne.one(eqBean);
+        T proxyBean = getQueryAction(EqQueryObjectAction.class).getProxyBean();
+        queryOne.one(proxyBean);
         return this;
     }
     public LambdaCriteria<T> eqExample(T example){
         Map<String, Object> map = PropertyNameTool.getMapNotNull(example);
-        eqMapProxy.getMap().putAll(map);
+        EqQueryObjectAction eqQueryObjectAction = (EqQueryObjectAction) getQueryAction(EqQueryObjectAction.class);
+        eqQueryObjectAction.getMap().putAll(map);
         return this;
     }
-    /**
-     * 构建等于
-     * @param criteria
-     */
-    protected void buildEq(Criteria criteria){
-        if (eqMap!=null){
-            for (String key : eqMap.keySet()) {
-                Object val = eqMap.get(key);
-                if (val==null){
-                    criteria.add(Restrictions.isNull(key));
-                }else{
-                    criteria.add(Restrictions.eq(key,val));
-                }
-            }
 
-        }
-    }
 
 
 
@@ -109,22 +65,11 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> like(QueryOne<T> queryOne){
-
-        queryOne.one(likeBean);
+        T proxyBean = getQueryAction(LikeQueryObjectAction.class).getProxyBean();
+        queryOne.one(proxyBean);
         return this;
     }
 
-    /**
-     * 构建Like
-     * @param criteria
-     */
-    protected void  buildLike(Criteria criteria){
-        if (likeMap!=null){
-            for (String key : likeMap.keySet()) {
-                criteria.add(Restrictions.like(key,likeMap.get(key)));
-            }
-        }
-    }
 
 
 
@@ -135,43 +80,38 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> ne(QueryOne<T> queryOne){
-        queryOne.one(neBean);
+        T proxyBean = getQueryAction(NeqQueryListAction.class).getProxyBean();
+        queryOne.one(proxyBean);
         return this;
     }
-
-    /**
-     * 构建不等于 criteria
-     * @param criteria
-     */
-    protected void buildNe(Criteria criteria){
-        if (neMap!=null){
-            for (String key : neMap.keySet()) {
-                List<Object> list = neMap.get(key);
-                for (Object val : list) {
-                    if (val==null){
-                        criteria.add(Restrictions.isNotNull(key));
-                    }else{
-                        criteria.add(Restrictions.ne(key,val));
-                    }
-                }
-
+    protected QueryAction<T> getQueryAction(Class<? extends QueryAction> tc){
+        QueryAction<T> queryAction = queryActionMap.get(tc);
+        if (queryAction==null){
+            try {
+                queryAction = ConstructorUtils.invokeConstructor(tc, tClass);
+                queryActionMap.put(tc,queryAction);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
+        return queryAction;
     }
 
 
 
-    public Criteria getCriteria(){
+
+    public Criteria createBuildCriteria(){
         Criteria criteria = session.createCriteria(tClass);
-        buildEq(criteria);
-        buildLike(criteria);
-        buildNe(criteria);
+        for (QueryAction<T> queryAction : queryActionMap.values()) {
+            queryAction.buildCriteria(criteria);
+        }
+
         return criteria;
     }
 
     @Override
     public List<T> list(){
-        return getCriteria().list();
+        return createBuildCriteria().list();
     }
 
     @Override
@@ -180,7 +120,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
     }
     @Override
     public List<T> list(int pageNo, int pageSize, Order order){
-        Criteria criteria = getCriteria();
+        Criteria criteria = createBuildCriteria();
         createPageOrder(criteria,pageNo,pageSize,order);
         return criteria.list();
     }
@@ -204,7 +144,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
     }
     @Override
     public Long count(String property){
-        Criteria criteria = getCriteria();
+        Criteria criteria = createBuildCriteria();
         Long result = (Long) criteria.setProjection(Projections.count(property)).uniqueResult();
         if (result==null){
             result= 0L;

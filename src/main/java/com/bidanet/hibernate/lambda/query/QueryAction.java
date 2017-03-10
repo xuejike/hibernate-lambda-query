@@ -7,5 +7,6 @@ import org.hibernate.Criteria;
  */
 public interface QueryAction<T> {
     T getProxyBean();
+
     void buildCriteria(Criteria criteria);
 }
