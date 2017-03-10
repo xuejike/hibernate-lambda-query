@@ -3,10 +3,10 @@ package test;
 /**
  * Created by xuejike on 2017/3/10.
  */
-public class TestClase {
+public class User {
     private String name;
     private String sex;
-    private boolean open;
+    private Boolean open;
 
     public String getName() {
         return name;
@@ -28,7 +28,7 @@ public class TestClase {
         return open;
     }
 
-    public void setOpen(boolean open) {
+    public void setOpen(Boolean open) {
         this.open = open;
     }
 }

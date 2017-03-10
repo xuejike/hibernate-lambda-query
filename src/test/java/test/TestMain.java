@@ -1,31 +1,13 @@
-# Hibernate Lambda 查询方式[![](https://jitpack.io/v/xuejike/hibernate-lambda-query.svg)](https://jitpack.io/#xuejike/hibernate-lambda-query)
-## 支持功能
-1. eq 查询
-2. like 查询
-3. ne 查询
+package test;
 
-## 使用说明
+import com.bidanet.hibernate.lambda.core.LambdaCriteria;
 
-### 1.引入版本库
-```xml
-        <repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-	</repositories>
-```
-```xml
-	<dependency>
-    	    <groupId>com.github.xuejike</groupId>
-    	    <artifactId>hibernate-lambda-query</artifactId>
-    	    <version>0.1</version>
-    	</dependency>
-
-```
-### 2. 示例
-```java
-  // eq 查询
+/**
+ * Created by xuejike on 2017/3/10.
+ */
+public class TestMain {
+    public static void main(String[] arg){
+        // eq 查询
         LambdaCriteria<User> lambdaCriteria = new LambdaCriteria<>(User.class, session);
         // select * from user where name = 'name' and sex = '男'
         lambdaCriteria.eq(query ->{
@@ -64,14 +46,11 @@
                 .eq(query -> query.setOpen(true))
                 .like(query -> query.setName("%xx%"))
                 .ne(query -> query.setSex("女")).list();
-//        分页  起始值 1 
+//        分页  起始值 1
         lambdaCriteria = new LambdaCriteria<>(User.class, session);
         lambdaCriteria
                 .eq(query -> query.setOpen(true))
                 .like(query -> query.setName("%xx%"))
                 .ne(query -> query.setSex("女")).list(1,10);
-
-```
-
-
-
+    }
+}

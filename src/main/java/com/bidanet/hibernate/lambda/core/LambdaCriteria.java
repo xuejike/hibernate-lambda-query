@@ -165,7 +165,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
     /**
      * 为Criteria 添加 排序以及分页
      * @param criteria 查询Criteria
-     * @param pageNo 页号
+     * @param pageNo 页号 起始值 1
      * @param pageSize 页大小
      * @param order 排序
      * @return
