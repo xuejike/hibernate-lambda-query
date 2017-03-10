@@ -1,5 +1,10 @@
 package com.bidanet.hibernate.lambda.common;
 
+import org.apache.commons.beanutils.BeanMap;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by xuejike on 2017/3/10.
  */
@@ -42,5 +47,18 @@ public class PropertyNameTool {
         public PropertyNameException(String message) {
             super(message);
         }
+    }
+
+    public static Map<String,Object> getMapNotNull(Object bean){
+        BeanMap beanMap = new BeanMap(bean);
+        HashMap<String, Object> map = new HashMap<>();
+        for (Object key : beanMap.keySet()) {
+            Object val = beanMap.get(key);
+            if (val!=null){
+                map.put(key.toString(),val);
+            }
+        }
+        return map;
+
     }
 }

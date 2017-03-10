@@ -1,5 +1,6 @@
 package com.bidanet.hibernate.lambda.core;
 
+import com.bidanet.hibernate.lambda.common.PropertyNameTool;
 import com.bidanet.hibernate.lambda.proxy.MapListProxy;
 import com.bidanet.hibernate.lambda.proxy.MapObjectProxy;
 import com.bidanet.hibernate.lambda.proxy.Proxy;
@@ -20,9 +21,15 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
         CriteriaWhere<T>, CriteriaFirst<T> {
     protected Session session;
     protected Class<T> tClass;
-    protected Map<String,Object> eqMap;
-    protected Map<String,Object> likeMap;
-    protected HashMap<String, List<Object>> neMap;
+    protected MapObjectProxy eqMapProxy=new MapObjectProxy();
+    protected Map<String,Object> eqMap=eqMapProxy.getMap();
+
+    protected MapObjectProxy likeMapProxy=new MapObjectProxy();
+    protected Map<String,Object> likeMap=likeMapProxy.getMap();
+
+    protected MapListProxy neMapListProxy=new MapListProxy();
+    protected Map<String, List<Object>> neMap=neMapListProxy.getMapList();
+
     protected String orderField="id";
     protected String countField="id";
 
@@ -33,7 +40,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
     }
 
 
-    protected T eqObj;
+    protected T eqObj= Proxy.proxy(tClass,eqMapProxy);;
 
     /**
      * 等于
@@ -42,15 +49,15 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> eq(QueryOne<T> queryOne){
-        if (eqMap==null){
-            eqMap=new HashMap();
 
-            eqObj= Proxy.proxy(tClass,new MapObjectProxy(eqMap));
-        }
         queryOne.one(eqObj);
         return this;
     }
-
+    public LambdaCriteria<T> eqExample(T example){
+        Map<String, Object> map = PropertyNameTool.getMapNotNull(example);
+        eqMapProxy.getMap().putAll(map);
+        return this;
+    }
     /**
      * 构建等于
      * @param criteria
@@ -133,7 +140,6 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
                 }
 
             }
-
         }
     }
 
