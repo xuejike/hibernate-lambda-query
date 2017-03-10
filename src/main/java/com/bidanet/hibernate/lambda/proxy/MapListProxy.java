@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Created by xuejike on 2017/3/10.
  */
-public class MapListProxy implements MethodInterceptor {
+public class MapListProxy extends GeterSeterMethodInterceptor {
     protected Map<String,List<Object>> mapList;
 
     public MapListProxy(Map<String, List<Object>> mapList) {
@@ -26,30 +26,22 @@ public class MapListProxy implements MethodInterceptor {
         this.mapList=new HashMap<>();
     }
 
-    @Override
-    public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-
-        Object o1 = methodProxy.invokeSuper(o, objects);
-
-//        System.out.println("++++++before " + methodProxy.getSuperName() + "++++++");
-        String methodName = method.getName();
-        if (PropertyNameTool.isSeter(methodName)){
-            String property = PropertyNameTool.getProperty(methodName);
-            List<Object> list = mapList.get(property);
-            if (list==null){
-                list= new ArrayList<Object>();
-                mapList.put(property,list);
-            }
-            Object val = objects[0];
-            if (list.indexOf(val)<0){
-                list.add(val);
-            }
-
-        }
-        return o1;
-    }
 
     public Map<String, List<Object>> getMapList() {
         return mapList;
+    }
+
+
+    @Override
+    public void execSeterMethod(Object obj, Method method, String property, Object val) {
+        List<Object> list = mapList.get(property);
+        if (list==null){
+            list= new ArrayList<Object>();
+            mapList.put(property,list);
+        }
+
+        if (list.indexOf(val)<0){
+            list.add(val);
+        }
     }
 }

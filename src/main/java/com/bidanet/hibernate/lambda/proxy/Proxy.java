@@ -1,8 +1,12 @@
 package com.bidanet.hibernate.lambda.proxy;
 
 
+import com.bidanet.hibernate.lambda.common.PropertyNameTool;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+
+import java.lang.reflect.Method;
 
 /**
  * Created by xuejike on 2017/3/10.
@@ -14,4 +18,5 @@ public class Proxy {
         enhancer.setSuperclass(tClass);
         return ((T) enhancer.create());
     }
+
 }

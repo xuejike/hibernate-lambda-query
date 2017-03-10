@@ -10,7 +10,6 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,14 +20,38 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
         CriteriaWhere<T>, CriteriaFirst<T> {
     protected Session session;
     protected Class<T> tClass;
+
+    // eq  等于
     protected MapObjectProxy eqMapProxy=new MapObjectProxy();
     protected Map<String,Object> eqMap=eqMapProxy.getMap();
+    protected T eqBean = Proxy.proxy(tClass,eqMapProxy);;
 
+    // like
     protected MapObjectProxy likeMapProxy=new MapObjectProxy();
     protected Map<String,Object> likeMap=likeMapProxy.getMap();
+    protected T likeBean=Proxy.proxy(tClass,likeMapProxy);
 
+    // ne  不等于
     protected MapListProxy neMapListProxy=new MapListProxy();
     protected Map<String, List<Object>> neMap=neMapListProxy.getMapList();
+    protected T neBean=Proxy.proxy(tClass,neMapListProxy);
+
+    // in
+
+    // 大于
+
+
+    // 小于
+
+    // 小于等于
+
+
+    //大于
+
+    // 大于等于
+
+
+
 
     protected String orderField="id";
     protected String countField="id";
@@ -40,7 +63,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
     }
 
 
-    protected T eqObj= Proxy.proxy(tClass,eqMapProxy);;
+
 
     /**
      * 等于
@@ -50,7 +73,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
     @Override
     public LambdaCriteria<T> eq(QueryOne<T> queryOne){
 
-        queryOne.one(eqObj);
+        queryOne.one(eqBean);
         return this;
     }
     public LambdaCriteria<T> eqExample(T example){
@@ -77,7 +100,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
     }
 
 
-    protected T likeObj;
+
 
     /**
      * like
@@ -86,11 +109,8 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> like(QueryOne<T> queryOne){
-        if (likeMap==null){
-            likeMap=new HashMap();
-            likeObj=Proxy.proxy(tClass,new MapObjectProxy(likeMap));
-        }
-        queryOne.one(likeObj);
+
+        queryOne.one(likeBean);
         return this;
     }
 
@@ -106,7 +126,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
         }
     }
 
-    protected T neObj;
+
 
     /**
      * 不等于
@@ -115,11 +135,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> ne(QueryOne<T> queryOne){
-        if (neMap==null){
-            neMap=new HashMap<String,List<Object>>();
-            neObj=Proxy.proxy(tClass,new MapListProxy(neMap));
-        }
-        queryOne.one(neObj);
+        queryOne.one(neBean);
         return this;
     }
 
