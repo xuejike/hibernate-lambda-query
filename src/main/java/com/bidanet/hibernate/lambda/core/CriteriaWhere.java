@@ -4,9 +4,21 @@ package com.bidanet.hibernate.lambda.core;
  * Created by xuejike on 2017/3/10.
  */
 public interface CriteriaWhere<T> {
-    CriteriaList<T> eq(QueryOne<T> queryOne);
+    LambdaCriteria<T> eq(QueryOne<T> queryOne);
 
-    CriteriaList<T> like(QueryOne<T> queryOne);
+    LambdaCriteria<T> eqExample(T example);
 
-    CriteriaList<T> ne(QueryOne<T> queryOne);
+    LambdaCriteria<T> like(QueryOne<T> queryOne);
+
+    LambdaCriteria<T> ne(QueryOne<T> queryOne);
+
+    LambdaCriteria<T> gte(QueryOne<T> queryOne);
+
+    LambdaCriteria<T> gt(QueryOne<T> queryOne);
+
+    LambdaCriteria<T> lte(QueryOne<T> queryOne);
+
+    LambdaCriteria<T> lt(QueryOne<T> queryOne);
+
+    LambdaCriteria<T> in(QueryOne<T> queryOne);
 }

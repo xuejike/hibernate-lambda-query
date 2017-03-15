@@ -47,6 +47,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
         queryOne.one(proxyBean);
         return this;
     }
+    @Override
     public LambdaCriteria<T> eqExample(T example){
         Map<String, Object> map = PropertyNameTool.getMapNotNull(example);
         EqQueryObjectAction eqQueryObjectAction = (EqQueryObjectAction) getQueryAction(EqQueryObjectAction.class);
@@ -70,9 +71,6 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
         return this;
     }
 
-
-
-
     /**
      * 不等于
      * @param queryOne
@@ -84,6 +82,71 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
         queryOne.one(proxyBean);
         return this;
     }
+
+    /**
+     * 大于等于
+     * @param queryOne
+     * @return
+     */
+    @Override
+    public LambdaCriteria<T> gte(QueryOne<T> queryOne){
+        T proxyBean = getQueryAction(GteQueryObjectAction.class).getProxyBean();
+        queryOne.one(proxyBean);
+        return this;
+    }
+
+    /**
+     *大于
+     * @param queryOne
+     * @return
+     */
+    @Override
+    public LambdaCriteria<T> gt(QueryOne<T> queryOne){
+        T proxyBean = getQueryAction(GtQueryObjectAction.class).getProxyBean();
+        queryOne.one(proxyBean);
+        return this;
+    }
+    /**
+     * 小于等于
+     * @param queryOne
+     * @return
+     */
+    @Override
+    public LambdaCriteria<T> lte(QueryOne<T> queryOne){
+        T proxyBean = getQueryAction(LteQueryObjectAction.class).getProxyBean();
+        queryOne.one(proxyBean);
+        return this;
+    }
+
+    /**
+     * 小于
+     * @param queryOne
+     * @return
+     */
+    @Override
+    public LambdaCriteria<T> lt(QueryOne<T> queryOne){
+        T proxyBean = getQueryAction(LtQueryObjectAction.class).getProxyBean();
+        queryOne.one(proxyBean);
+        return this;
+    }
+
+    /**
+     * in 操作
+     * @param queryOne
+     * @return
+     */
+    @Override
+    public LambdaCriteria<T> in(QueryOne<T> queryOne){
+        T proxyBean = getQueryAction(InQueryListAction.class).getProxyBean();
+        queryOne.one(proxyBean);
+        return this;
+    }
+
+
+
+
+
+
     protected QueryAction<T> getQueryAction(Class<? extends QueryAction> tc){
         QueryAction<T> queryAction = queryActionMap.get(tc);
         if (queryAction==null){

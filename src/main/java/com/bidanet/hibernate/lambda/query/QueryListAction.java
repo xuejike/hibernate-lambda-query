@@ -29,12 +29,20 @@ public abstract class QueryListAction<T> extends AbsQueryOneAction<T>  {
         Map<String, List<Object>> mapList = mapListProxy.getMapList();
         for (String key : mapList.keySet()) {
             List<Object> list = mapList.get(key);
-            if (list!=null){
-                for (Object val : list) {
-                    criteria.add(createCriterion(key,val));
-                }
+            createCriteron(criteria, key, list);
+        }
+    }
+
+    protected void createCriteron(Criteria criteria, String key, List<Object> list) {
+        if (list!=null){
+            for (Object val : list) {
+                criteria.add(createCriterion(key,val));
             }
         }
+    }
 
+    @Override
+    protected Criterion createCriterion(String key, Object val) {
+        return null;
     }
 }
