@@ -6,14 +6,18 @@ import org.hibernate.criterion.Restrictions;
 /**
  * 等号 查询实现
  */
-public class LteQueryObjectAction<T> extends QueryObjectAction<T> {
-    public LteQueryObjectAction(Class<T> zclass) {
+public class EqAbsQueryObjectAction<T> extends AbsQueryObjectAction<T> {
+    public EqAbsQueryObjectAction(Class<T> zclass) {
         super(zclass);
     }
 
     @Override
     protected Criterion createCriterion(String key, Object val) {
-        return Restrictions.le(key,val);
+        if (val==null){
+            return Restrictions.isNull(key);
+        }else{
+            return Restrictions.eq(key,val);
+        }
 //        return ;
     }
 }

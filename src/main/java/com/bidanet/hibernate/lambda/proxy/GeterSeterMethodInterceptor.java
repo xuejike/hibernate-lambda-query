@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
  * Created by xuejike on 2017/3/10.
  */
 public abstract class GeterSeterMethodInterceptor implements MethodInterceptor {
+
     @Override
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
         Object val = methodProxy.invokeSuper(o, objects);

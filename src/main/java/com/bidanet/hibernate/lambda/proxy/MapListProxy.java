@@ -16,7 +16,9 @@ import java.util.Map;
  * Created by xuejike on 2017/3/10.
  */
 public class MapListProxy extends GeterSeterMethodInterceptor {
+
     protected Map<String,List<Object>> mapList;
+
 
     public MapListProxy(Map<String, List<Object>> mapList) {
         this.mapList = mapList;

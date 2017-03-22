@@ -7,8 +7,8 @@ import org.hibernate.criterion.Restrictions;
 /**
  * Like 查询实现
  */
-public class LikeQueryObjectAction<T> extends QueryObjectAction<T> {
-    public LikeQueryObjectAction(Class<T> zclass) {
+public class LikeAbsQueryObjectAction<T> extends AbsQueryObjectAction<T> {
+    public LikeAbsQueryObjectAction(Class<T> zclass) {
         super(zclass);
     }
 

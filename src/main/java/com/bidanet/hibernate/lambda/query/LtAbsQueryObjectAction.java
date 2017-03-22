@@ -4,16 +4,15 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 
 /**
- * 等号 查询实现
+ * Created by xuejike on 2017/3/10.
  */
-public class GteQueryObjectAction<T> extends QueryObjectAction<T> {
-    public GteQueryObjectAction(Class<T> zclass) {
+public class LtAbsQueryObjectAction<T> extends AbsQueryObjectAction<T> {
+    public LtAbsQueryObjectAction(Class<T> zclass) {
         super(zclass);
     }
 
     @Override
     protected Criterion createCriterion(String key, Object val) {
-        return Restrictions.ge(key,val);
-//        return ;
+        return Restrictions.lt(key, val);
     }
 }

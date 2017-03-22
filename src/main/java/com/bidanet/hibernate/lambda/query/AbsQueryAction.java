@@ -4,6 +4,9 @@ import com.bidanet.hibernate.lambda.proxy.GeterSeterMethodInterceptor;
 import com.bidanet.hibernate.lambda.proxy.Proxy;
 import net.sf.cglib.proxy.MethodInterceptor;
 import org.hibernate.Criteria;
+import org.hibernate.criterion.Criterion;
+
+import java.util.List;
 
 /**
  * Created by xuejike on 2017/3/10.
@@ -29,6 +32,11 @@ public abstract class AbsQueryAction<T> implements QueryAction<T> {
     }
 
     @Override
-    public abstract void buildCriteria(Criteria criteria);
+    public void buildCriteria(Criteria criteria){
+        List<Criterion> criterionList = getCriterionList();
+        for (Criterion criterion : criterionList) {
+            criteria.add(criterion);
+        }
+    }
 
 }

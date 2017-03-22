@@ -7,15 +7,17 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Created by xuejike on 2017/3/10.
  */
-public abstract class QueryObjectAction<T> extends AbsQueryOneAction<T> {
+public abstract class AbsQueryObjectAction<T> extends AbsQueryOneAction<T> {
      protected MapObjectProxy mapObjectProxy=new MapObjectProxy();
 
-    public QueryObjectAction(Class<T> zclass) {
+    public AbsQueryObjectAction(Class<T> zclass) {
         super(zclass);
     }
 
@@ -25,18 +27,20 @@ public abstract class QueryObjectAction<T> extends AbsQueryOneAction<T> {
         return mapObjectProxy;
     }
 
-    @Override
-    public void buildCriteria(Criteria criteria) {
-        Map<String, Object> map = mapObjectProxy.getMap();
-        for (String key : map.keySet()) {
-            criteria.add(createCriterion(key,map.get(key)));
-        }
-    }
+
     public Map<String,Object> getMap(){
         return mapObjectProxy.getMap();
     }
 
 
-
-
+    @Override
+    public List<Criterion> getCriterionList() {
+        ArrayList<Criterion> criteria = new ArrayList<>();
+        Map<String, Object> map = mapObjectProxy.getMap();
+        for (String key : map.keySet()) {
+            Criterion criterion = createCriterion(key, map.get(key));
+            criteria.add(criterion);
+        }
+        return criteria;
+    }
 }

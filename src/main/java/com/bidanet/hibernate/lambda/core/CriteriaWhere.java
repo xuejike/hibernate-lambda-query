@@ -1,5 +1,9 @@
 package com.bidanet.hibernate.lambda.core;
 
+import org.hibernate.criterion.Criterion;
+
+import java.util.List;
+
 /**
  * Created by xuejike on 2017/3/10.
  */
@@ -21,4 +25,5 @@ public interface CriteriaWhere<T> {
     LambdaCriteria<T> lt(QueryOne<T> queryOne);
 
     LambdaCriteria<T> in(QueryOne<T> queryOne);
+
 }

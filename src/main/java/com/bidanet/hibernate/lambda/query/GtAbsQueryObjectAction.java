@@ -6,8 +6,8 @@ import org.hibernate.criterion.Restrictions;
 /**
  * 等号 查询实现
  */
-public class GtQueryObjectAction<T> extends QueryObjectAction<T> {
-    public GtQueryObjectAction(Class<T> zclass) {
+public class GtAbsQueryObjectAction<T> extends AbsQueryObjectAction<T> {
+    public GtAbsQueryObjectAction(Class<T> zclass) {
         super(zclass);
     }
 

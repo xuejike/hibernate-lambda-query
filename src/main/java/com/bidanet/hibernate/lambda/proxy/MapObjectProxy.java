@@ -15,6 +15,7 @@ import java.util.Map;
 public class MapObjectProxy extends GeterSeterMethodInterceptor {
     protected Map<String,Object> map;
 
+
     public MapObjectProxy(Map<String, Object> map) {
         this.map = map;
     }
@@ -31,4 +32,5 @@ public class MapObjectProxy extends GeterSeterMethodInterceptor {
     public Map<String, Object> getMap() {
         return map;
     }
+
 }

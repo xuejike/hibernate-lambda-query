@@ -43,14 +43,14 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> eq(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(EqQueryObjectAction.class).getProxyBean();
+        T proxyBean = getQueryAction(EqAbsQueryObjectAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
     @Override
     public LambdaCriteria<T> eqExample(T example){
         Map<String, Object> map = PropertyNameTool.getMapNotNull(example);
-        EqQueryObjectAction eqQueryObjectAction = (EqQueryObjectAction) getQueryAction(EqQueryObjectAction.class);
+        EqAbsQueryObjectAction eqQueryObjectAction = (EqAbsQueryObjectAction) getQueryAction(EqAbsQueryObjectAction.class);
         eqQueryObjectAction.getMap().putAll(map);
         return this;
     }
@@ -66,7 +66,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> like(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(LikeQueryObjectAction.class).getProxyBean();
+        T proxyBean = getQueryAction(LikeAbsQueryObjectAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
@@ -78,7 +78,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> ne(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(NeqQueryListAction.class).getProxyBean();
+        T proxyBean = getQueryAction(NeqAbsQueryListAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
@@ -90,7 +90,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> gte(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(GteQueryObjectAction.class).getProxyBean();
+        T proxyBean = getQueryAction(GteAbsQueryObjectAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
@@ -102,7 +102,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> gt(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(GtQueryObjectAction.class).getProxyBean();
+        T proxyBean = getQueryAction(GtAbsQueryObjectAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
@@ -113,7 +113,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> lte(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(LteQueryObjectAction.class).getProxyBean();
+        T proxyBean = getQueryAction(LteAbsQueryObjectAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
@@ -125,7 +125,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> lt(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(LtQueryObjectAction.class).getProxyBean();
+        T proxyBean = getQueryAction(LtAbsQueryObjectAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
@@ -137,7 +137,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> in(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(InQueryListAction.class).getProxyBean();
+        T proxyBean = getQueryAction(InAbsQueryListAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
@@ -168,6 +168,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
         for (QueryAction<T> queryAction : queryActionMap.values()) {
             queryAction.buildCriteria(criteria);
         }
+
 
         return criteria;
     }
