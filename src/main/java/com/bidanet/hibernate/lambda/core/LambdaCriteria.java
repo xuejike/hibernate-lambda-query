@@ -185,8 +185,9 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
      * @param propertyName 字段名称
      * @param joinType 关联类型
      */
-    public void setJoinType(String propertyName,JoinType joinType){
+    public LambdaCriteria<T>  setJoinType(String propertyName,JoinType joinType){
         joinFieldMap.put(propertyName,joinType);
+        return this;
     }
 
     /**

@@ -19,11 +19,11 @@
 	<dependency>
     	    <groupId>com.github.xuejike</groupId>
     	    <artifactId>hibernate-lambda-query</artifactId>
-    	    <version>0.1.1</version>
+    	    <version>0.1.4bate2</version>
     	</dependency>
 
 ```
-### 2. 示例
+### 2. 基础查询示例
 ```java
   // eq 查询
         LambdaCriteria<User> lambdaCriteria = new LambdaCriteria<>(User.class, session);
@@ -72,6 +72,61 @@
                 .ne(query -> query.setSex("女")).list(1,10);
 
 ```
+### 3. or条件查询示例
 
+```java
+   // SQL  ->  where username='xuejike' and (name='xjk' and nickname='xuejike') or (name='xuejike')
+        userDao.criteriaQuery()
+                .eq(query -> query.setUsername("xuejike"))
+                .or(where->{
+                    where.eq(query ->{
+                        query.setName("xjk");
+                        query.setNickname("xuejike");
+                    });
+                })
+                .or(where->{
+                    where.eq(query ->{
+                        query.setName("xuejike");}
+                );
+        }).list();
+```
+
+
+
+### 4. 关联查询示例
+
+```java
+
+
+        //Join 默认连接方式为 Inner Join
+
+        // SQL   from user inner join company on company.id=user.company_id where username='xuejike' and company.id=1
+        userDao.criteriaQuery().eq(query -> {
+            query.setUsername("xuejike");
+            query.getCompany().setId(1L);
+        }).list();
+
+        // SQL   from user inner join company on company.id=user.company_id where username = 'xuejike' and company.id=1
+        userDao.criteriaQuery().eq(query -> {
+            query.setUsername("xuejike");
+            query.getCompany().setId(1L);
+        }).list();
+
+        // SQL   from user left outer  join company on company.id=user.company_id where username = 'xuejike' and company.id=1
+        userDao.criteriaQuery().eq(query -> {
+            query.setUsername("xuejike");
+            query.getCompany().setId(1L);
+        }).setJoinType("company",JoinType.LEFT_OUTER_JOIN).list();
+
+        // SQL   from user inner join company on company.id=user.company_id where username='xuejike' and company.id=1
+        userDao.criteriaQuery().eq(query -> {
+            query.setUsername("xuejike");
+        }).join("company",Company.class,where->{
+            where.eq(query -> {
+                query.setId(1L);
+            });
+        },JoinType.INNER_JOIN).list();
+
+```
 
 
