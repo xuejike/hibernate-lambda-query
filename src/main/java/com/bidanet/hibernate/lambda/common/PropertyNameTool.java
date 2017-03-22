@@ -9,6 +9,11 @@ import java.util.Map;
  * Created by xuejike on 2017/3/10.
  */
 public class PropertyNameTool {
+    /**
+     * 连接 别名字段前缀
+     */
+    public  static final String  JOIN_ALIAS_PREFIX= "alias_";
+
     public static String getProperty(String geterSeter){
         checkString(geterSeter);
         boolean is = geterSeter.startsWith("is");

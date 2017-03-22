@@ -1,6 +1,8 @@
 package com.bidanet.hibernate.lambda.core;
 
 import com.bidanet.hibernate.lambda.common.PropertyNameTool;
+import com.bidanet.hibernate.lambda.proxy.MapObjectProxy;
+import com.bidanet.hibernate.lambda.proxy.Proxy;
 import com.bidanet.hibernate.lambda.query.*;
 import org.apache.commons.beanutils.ConstructorUtils;
 import org.hibernate.Criteria;
@@ -9,22 +11,22 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.sql.JoinType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by xuejike on 2017/3/9.
  */
-public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
-        CriteriaWhere<T>, CriteriaFirst<T> {
+public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
+        WhereCriteria<T>, FirstCriteria<T> {
     protected Session session;
     protected Class<T> tClass;
-    protected HashMap<Class,QueryAction<T>>queryActionMap=new HashMap<>();
-    protected List<CriteriaWhere<T>> orCriteriaList=new ArrayList<>(1);
+    protected HashMap<Class,QueryAction<T>>queryActionMap=new HashMap<>(1);
+    protected List<WhereCriteria<T>> orCriteriaList=new ArrayList<>(1);
 
+    protected Map<String,JoinExpression> joinExpressionMap=new HashMap<>(1);
+    protected HashMap<String, JoinType> joinFieldMap = new HashMap<>(1);
 
 
 
@@ -146,6 +148,10 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
         return this;
     }
 
+    /**
+     * 获取 Where查询的 条件集合
+     * @return
+     */
     @Override
     public List<Criterion> getCriterionList() {
         ArrayList<Criterion> list = new ArrayList<>();
@@ -156,7 +162,11 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
         return list;
     }
 
-
+    /**
+     * 获取查询方式
+     * @param tc
+     * @return
+     */
     protected QueryAction<T> getQueryAction(Class<? extends QueryAction> tc){
         QueryAction<T> queryAction = queryActionMap.get(tc);
         if (queryAction==null){
@@ -170,26 +180,65 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
         return queryAction;
     }
 
+    /**
+     * 设置 关联查询方式
+     * @param propertyName 字段名称
+     * @param joinType 关联类型
+     */
+    public void setJoinType(String propertyName,JoinType joinType){
+        joinFieldMap.put(propertyName,joinType);
+    }
 
-
-
+    /**
+     * 创建Hibernate 查询
+     * @return
+     */
     public Criteria createBuildCriteria(){
         Criteria criteria = session.createCriteria(tClass);
+//        criteria.createAlias()
+
+
+
+        for (QueryAction<T> queryAction : queryActionMap.values()) {
+            Map<String, JoinType> joinField = queryAction.getJoinField();
+            joinFieldMap.putAll(joinField);
+        }
+
+        for (Map.Entry<String, JoinExpression> entry : joinExpressionMap.entrySet()) {
+            joinFieldMap.put(entry.getKey(),entry.getValue().getJoinType());
+        }
+
+        for (Map.Entry<String, JoinType> entry : joinFieldMap.entrySet()) {
+            criteria.createAlias(entry.getKey(),PropertyNameTool.JOIN_ALIAS_PREFIX+entry.getKey(),entry.getValue());
+        }
+
+
         for (QueryAction<T> queryAction : queryActionMap.values()) {
             queryAction.buildCriteria(criteria);
         }
 
+
+        // Or 查询进行组合
         Criterion[] orCriterion=new Criterion[orCriteriaList.size()];
-//        for (CriteriaWhere<T> criteriaWhere : orCriteriaList) {
-//            List<Criterion> criterionList = criteriaWhere.getCriterionList();
-//            Criterion[] criteria1=new Criterion[criterionList.size()];
-//        }
         for (int i = 0; i < orCriteriaList.size(); i++) {
-            CriteriaWhere<T> criteriaWhere = orCriteriaList.get(i);
-            Criterion[] criteria1 = criteriaWhere.getCriterionList().toArray(new Criterion[1]);
+            WhereCriteria<T> whereCriteria = orCriteriaList.get(i);
+            Criterion[] criteria1 = whereCriteria.getCriterionList().toArray(new Criterion[1]);
             orCriterion[i]=Restrictions.conjunction(criteria1);
         }
         criteria.add(Restrictions.or(orCriterion));
+
+        // join 查询进行组合
+        for (Map.Entry<String, JoinExpression> entry : joinExpressionMap.entrySet()) {
+            String key = entry.getKey();
+            JoinExpression value = entry.getValue();
+//            criteria = criteria.createAlias(key,"alias_"+key,value.getJoinType());
+            List<Criterion> criterionList = value.getWhereCriteria().getCriterionList();
+            for (Criterion o : criterionList) {
+                criteria.add(o);
+            }
+
+        }
+
 
         return criteria;
     }
@@ -253,12 +302,54 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
         }
     }
 
-    public LambdaCriteria<T> or(QueryOne<CriteriaWhere<T>> whereQuery ){
+    /**
+     * Or 查询 内部是 and
+     * @param whereQuery
+     * @return
+     */
+    public LambdaCriteria<T> or(QueryOne<WhereCriteria<T>> whereQuery ){
         LambdaCriteria<T> whereCriteria = new LambdaCriteria<>(tClass, session);
         orCriteriaList.add(whereCriteria);
         whereQuery.one(whereCriteria);
         return this;
     }
 
+    /**
+     * 关联查询
+     * @param propertyName 关联属性
+     * @param propertyClass
+     * @param whereQuery
+     * @param <P>
+     * @return
+     */
+    public<P> LambdaCriteria<T> join(String propertyName, Class<P> propertyClass
+            , QueryOne<WhereCriteria<P>> whereQuery){
+        return join(propertyName,propertyClass,whereQuery,JoinType.INNER_JOIN);
+    }
+
+    public<P> LambdaCriteria<T> join(String propertyName, Class<P> propertyClass
+            , QueryOne<WhereCriteria<P>> whereQuery, JoinType joinType){
+        LambdaCriteria<P> whereC = new LambdaCriteria<>(propertyClass, session);
+        whereQuery.one(whereC);
+
+        JoinExpression joinExpression = new JoinExpression(propertyName, joinType, whereC);
+        joinExpressionMap.put(propertyName,joinExpression);
+
+        return this;
+    }
+    public<P> LambdaCriteria<T> join(QueryOne<T> joinField
+            , QueryOne<WhereCriteria<P>> whereQuery){
+        return join(joinField, whereQuery,JoinType.INNER_JOIN);
+    }
+    public<P> LambdaCriteria<T> join(QueryOne<T> joinField
+            , QueryOne<WhereCriteria<P>> whereQuery, JoinType joinType){
+        MapObjectProxy proxy = new MapObjectProxy();
+        T proxyBean = Proxy.proxy(tClass, proxy);
+        joinField.one(proxyBean);
+
+        join(proxy.getLastPropertyName(),proxy.getLastPropertyClass(),whereQuery,joinType);
+
+        return this;
+    }
 
 }

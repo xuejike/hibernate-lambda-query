@@ -5,6 +5,7 @@ import com.bidanet.hibernate.lambda.proxy.MapListProxy;
 import net.sf.cglib.proxy.MethodInterceptor;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.sql.JoinType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,14 @@ public abstract class AbsQueryListAction<T> extends AbsQueryOneAction<T>  {
             }
         }
         return criterionList;
+    }
+
+    public Map<String, List<Object>> getFieldMap(){
+        return mapListProxy.getMapList();
+    }
+    @Override
+    public Map<String,JoinType> getJoinField(){
+        return mapListProxy.getJoinFieldMap();
     }
 
 

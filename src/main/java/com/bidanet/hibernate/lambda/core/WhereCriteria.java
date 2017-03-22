@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by xuejike on 2017/3/10.
  */
-public interface CriteriaWhere<T> {
+public interface WhereCriteria<T> {
     LambdaCriteria<T> eq(QueryOne<T> queryOne);
 
     LambdaCriteria<T> eqExample(T example);

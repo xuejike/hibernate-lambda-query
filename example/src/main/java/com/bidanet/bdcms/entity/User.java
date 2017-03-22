@@ -1,6 +1,7 @@
 package com.bidanet.bdcms.entity;
 
 import com.bidanet.bdcms.entity.enumType.Sex;
+import com.bidanet.hibernate.lambda.annotation.LambdaJoinQuery;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
@@ -108,9 +109,9 @@ public class User {
     public void setCompanyId(Long companyId) {
         this.companyId = companyId;
     }
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id",insertable = false,updatable = false)
-    @NotFound(action = NotFoundAction.IGNORE)
     public Company getCompany() {
         return company;
     }

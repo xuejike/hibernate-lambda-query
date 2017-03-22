@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by xuejike on 2017/3/10.
  */
-public interface CriteriaList<T> {
+public interface ListCriteria<T> {
     List<T> list();
 
     List<T> list(int pageNo, int pageSize);
