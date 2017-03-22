@@ -6,8 +6,8 @@ import org.hibernate.criterion.Restrictions;
 /**
  * 不等于
  */
-public class NeqAbsQueryListAction<T> extends AbsQueryListAction<T> {
-    public NeqAbsQueryListAction(Class<T> zclass) {
+public class NeqQueryListAction<T> extends AbsQueryListAction<T> {
+    public NeqQueryListAction(Class<T> zclass) {
         super(zclass);
     }
 

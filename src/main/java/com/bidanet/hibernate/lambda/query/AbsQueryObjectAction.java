@@ -15,7 +15,7 @@ import java.util.Map;
  * Created by xuejike on 2017/3/10.
  */
 public abstract class AbsQueryObjectAction<T> extends AbsQueryOneAction<T> {
-     protected MapObjectProxy mapObjectProxy=new MapObjectProxy();
+    protected MapObjectProxy mapObjectProxy;
 
     public AbsQueryObjectAction(Class<T> zclass) {
         super(zclass);
@@ -24,6 +24,9 @@ public abstract class AbsQueryObjectAction<T> extends AbsQueryOneAction<T> {
 
     @Override
     protected GeterSeterMethodInterceptor getInterceptor() {
+        if (mapObjectProxy==null){
+            mapObjectProxy=new MapObjectProxy();
+        }
         return mapObjectProxy;
     }
 

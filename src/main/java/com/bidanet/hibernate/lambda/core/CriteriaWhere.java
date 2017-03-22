@@ -25,5 +25,5 @@ public interface CriteriaWhere<T> {
     LambdaCriteria<T> lt(QueryOne<T> queryOne);
 
     LambdaCriteria<T> in(QueryOne<T> queryOne);
-
+    List<Criterion> getCriterionList();
 }

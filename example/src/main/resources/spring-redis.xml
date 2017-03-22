@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="redissonClien" class="com.bidanet.bdcms.core.driver.cache.RedissonFactory" factory-method="getRedisson">
+
+        <constructor-arg name="host" value="116.62.52.225:6379"/>
+        <constructor-arg name="pwd" value="YinFeng1234"/>
+        <constructor-arg name="db" value="2"/>
+    </bean>
+    <bean class="com.bidanet.bdcms.core.driver.cache.RedissonCache"></bean>
+</beans>

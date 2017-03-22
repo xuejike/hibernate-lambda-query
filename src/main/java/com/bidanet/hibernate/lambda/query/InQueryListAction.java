@@ -9,8 +9,8 @@ import java.util.List;
 /**
  * In
  */
-public class InAbsQueryListAction<T> extends AbsQueryListAction<T> {
-    public InAbsQueryListAction(Class<T> zclass) {
+public class InQueryListAction<T> extends AbsQueryListAction<T> {
+    public InQueryListAction(Class<T> zclass) {
         super(zclass);
     }
 

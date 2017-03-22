@@ -5,9 +5,12 @@ import com.bidanet.hibernate.lambda.query.*;
 import org.apache.commons.beanutils.ConstructorUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +23,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
     protected Session session;
     protected Class<T> tClass;
     protected HashMap<Class,QueryAction<T>>queryActionMap=new HashMap<>();
+    protected List<CriteriaWhere<T>> orCriteriaList=new ArrayList<>(1);
 
 
 
@@ -43,14 +47,14 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> eq(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(EqAbsQueryObjectAction.class).getProxyBean();
+        T proxyBean = getQueryAction(EqQueryObjectAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
     @Override
     public LambdaCriteria<T> eqExample(T example){
         Map<String, Object> map = PropertyNameTool.getMapNotNull(example);
-        EqAbsQueryObjectAction eqQueryObjectAction = (EqAbsQueryObjectAction) getQueryAction(EqAbsQueryObjectAction.class);
+        EqQueryObjectAction eqQueryObjectAction = (EqQueryObjectAction) getQueryAction(EqQueryObjectAction.class);
         eqQueryObjectAction.getMap().putAll(map);
         return this;
     }
@@ -66,7 +70,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> like(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(LikeAbsQueryObjectAction.class).getProxyBean();
+        T proxyBean = getQueryAction(LikeQueryObjectAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
@@ -78,7 +82,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> ne(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(NeqAbsQueryListAction.class).getProxyBean();
+        T proxyBean = getQueryAction(NeqQueryListAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
@@ -90,7 +94,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> gte(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(GteAbsQueryObjectAction.class).getProxyBean();
+        T proxyBean = getQueryAction(GteQueryObjectAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
@@ -102,7 +106,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> gt(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(GtAbsQueryObjectAction.class).getProxyBean();
+        T proxyBean = getQueryAction(GtQueryObjectAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
@@ -113,7 +117,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> lte(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(LteAbsQueryObjectAction.class).getProxyBean();
+        T proxyBean = getQueryAction(LteQueryObjectAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
@@ -125,7 +129,7 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> lt(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(LtAbsQueryObjectAction.class).getProxyBean();
+        T proxyBean = getQueryAction(LtQueryObjectAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
@@ -137,14 +141,20 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
      */
     @Override
     public LambdaCriteria<T> in(QueryOne<T> queryOne){
-        T proxyBean = getQueryAction(InAbsQueryListAction.class).getProxyBean();
+        T proxyBean = getQueryAction(InQueryListAction.class).getProxyBean();
         queryOne.one(proxyBean);
         return this;
     }
 
-
-
-
+    @Override
+    public List<Criterion> getCriterionList() {
+        ArrayList<Criterion> list = new ArrayList<>();
+        for (QueryAction<T> action : queryActionMap.values()) {
+            List<Criterion> criteria = action.getCriterionList();
+            list.addAll(criteria);
+        }
+        return list;
+    }
 
 
     protected QueryAction<T> getQueryAction(Class<? extends QueryAction> tc){
@@ -169,6 +179,17 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
             queryAction.buildCriteria(criteria);
         }
 
+        Criterion[] orCriterion=new Criterion[orCriteriaList.size()];
+//        for (CriteriaWhere<T> criteriaWhere : orCriteriaList) {
+//            List<Criterion> criterionList = criteriaWhere.getCriterionList();
+//            Criterion[] criteria1=new Criterion[criterionList.size()];
+//        }
+        for (int i = 0; i < orCriteriaList.size(); i++) {
+            CriteriaWhere<T> criteriaWhere = orCriteriaList.get(i);
+            Criterion[] criteria1 = criteriaWhere.getCriterionList().toArray(new Criterion[1]);
+            orCriterion[i]=Restrictions.conjunction(criteria1);
+        }
+        criteria.add(Restrictions.or(orCriterion));
 
         return criteria;
     }
@@ -230,6 +251,13 @@ public class LambdaCriteria<T> implements CriteriaList<T>, CriteriaCount,
         if (first!=null){
             result.one(first);
         }
+    }
+
+    public LambdaCriteria<T> or(QueryOne<CriteriaWhere<T>> whereQuery ){
+        LambdaCriteria<T> whereCriteria = new LambdaCriteria<>(tClass, session);
+        orCriteriaList.add(whereCriteria);
+        whereQuery.one(whereCriteria);
+        return this;
     }
 
 
