@@ -296,7 +296,7 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
     }
     @Override
     public T first(){
-        List<T> list = list();
+        List<T> list = list(0,1);
         if (list.size()>0){
             return list.get(0);
         }else{
