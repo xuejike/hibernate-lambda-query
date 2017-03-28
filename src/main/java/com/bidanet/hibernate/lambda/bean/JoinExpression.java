@@ -1,5 +1,6 @@
-package com.bidanet.hibernate.lambda.core;
+package com.bidanet.hibernate.lambda.bean;
 
+import com.bidanet.hibernate.lambda.core.WhereCriteria;
 import org.hibernate.sql.JoinType;
 
 /**

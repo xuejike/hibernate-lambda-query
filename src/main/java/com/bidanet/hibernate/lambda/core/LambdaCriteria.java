@@ -1,5 +1,6 @@
 package com.bidanet.hibernate.lambda.core;
 
+import com.bidanet.hibernate.lambda.bean.JoinExpression;
 import com.bidanet.hibernate.lambda.common.PropertyNameTool;
 import com.bidanet.hibernate.lambda.proxy.MapObjectProxy;
 import com.bidanet.hibernate.lambda.proxy.Proxy;
@@ -19,7 +20,7 @@ import java.util.*;
  * Created by xuejike on 2017/3/9.
  */
 public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
-        WhereCriteria<T>, FirstCriteria<T> {
+        WhereCriteria<T>, FirstCriteria<T>, OrderCriteria<T> {
     protected Session session;
     protected Class<T> tClass;
     protected HashMap<Class,QueryAction<T>>queryActionMap=new HashMap<>(1);
@@ -27,6 +28,7 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
 
     protected Map<String,JoinExpression> joinExpressionMap=new HashMap<>(1);
     protected HashMap<String, JoinType> joinFieldMap = new HashMap<>(1);
+    protected List<Order> orderList=new ArrayList<>(1);
 
 
 
@@ -240,6 +242,12 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
 
         }
 
+        //排序
+
+        for (Order order : orderList) {
+            criteria.addOrder(order);
+        }
+
 
         return criteria;
     }
@@ -350,6 +358,18 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
 
         join(proxy.getLastPropertyName(),proxy.getLastPropertyClass(),whereQuery,joinType);
 
+        return this;
+    }
+
+    @Override
+    public LambdaCriteria<T> orderDesc(String propertyName){
+        Order desc = Order.desc(propertyName);
+        orderList.add(desc);
+        return this;
+    }
+    @Override
+    public LambdaCriteria<T> orderAsc(String propertyName){
+        orderList.add(Order.asc(propertyName));
         return this;
     }
 
