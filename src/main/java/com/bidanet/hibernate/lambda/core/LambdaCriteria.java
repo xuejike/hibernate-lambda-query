@@ -243,10 +243,15 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
         }
 
         //排序
-
-        for (Order order : orderList) {
-            criteria.addOrder(order);
+        if (orderList.size()>0){
+            for (Order order : orderList) {
+                criteria.addOrder(order);
+            }
+        }else{
+            criteria.addOrder(Order.desc(orderField));
         }
+
+
 
 
         return criteria;
@@ -276,9 +281,12 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
      * @return
      */
     protected Criteria createPageOrder(Criteria criteria,int pageNo, int pageSize, Order order){
-        return criteria.setFirstResult((pageNo-1) * pageSize)
-                .setMaxResults(pageSize)
-                .addOrder(order);
+        if (!orderField.equals(order.getPropertyName())){
+            criteria.addOrder(order);
+        }
+        criteria.setFirstResult((pageNo-1) * pageSize)
+                .setMaxResults(pageSize);
+        return criteria;
     }
     @Override
     public Long count(){
@@ -296,6 +304,7 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
     }
     @Override
     public T first(){
+
         List<T> list = list(0,1);
         if (list.size()>0){
             return list.get(0);
