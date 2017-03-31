@@ -20,7 +20,7 @@ import java.util.*;
  * Created by xuejike on 2017/3/9.
  */
 public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
-        WhereCriteria<T>, FirstCriteria<T>, OrderCriteria<T> {
+        WhereCriteria<T>, FirstCriteria<T>, OrderCriteria<T>, HibernateCriteria {
     protected Session session;
     protected Class<T> tClass;
     protected HashMap<Class,QueryAction<T>>queryActionMap=new HashMap<>(1);
@@ -31,6 +31,7 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
     protected List<Order> orderList=new ArrayList<>(1);
 
 
+    protected List<Criterion> otherProjectionsList=new ArrayList<>();
 
     protected String orderField="id";
     protected String countField="id";
@@ -241,6 +242,10 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
             }
 
         }
+        // 其它另外 数据
+        for (Criterion criterion : otherProjectionsList) {
+            criteria.add(criterion);
+        }
 
         //排序
         if (orderList.size()>0){
@@ -379,6 +384,12 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
     @Override
     public LambdaCriteria<T> orderAsc(String propertyName){
         orderList.add(Order.asc(propertyName));
+        return this;
+    }
+
+    @Override
+    public LambdaCriteria<T> addProjection(Criterion criterion){
+        otherProjectionsList.add(criterion);
         return this;
     }
 
