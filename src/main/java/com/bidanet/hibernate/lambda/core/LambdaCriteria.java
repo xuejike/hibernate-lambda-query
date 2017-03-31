@@ -8,10 +8,7 @@ import com.bidanet.hibernate.lambda.query.*;
 import org.apache.commons.beanutils.ConstructorUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.*;
 import org.hibernate.sql.JoinType;
 
 import java.util.*;
@@ -31,10 +28,11 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
     protected List<Order> orderList=new ArrayList<>(1);
 
 
-    protected List<Criterion> otherProjectionsList=new ArrayList<>();
+    protected List<Criterion> otherCriterionList =new ArrayList<>();
 
     protected String orderField="id";
     protected String countField="id";
+    private ProjectionList projectionList =Projections.projectionList();
 
 
     public LambdaCriteria(Class<T> tClass, Session session) {
@@ -243,10 +241,14 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
 
         }
         // 其它另外 数据
-        for (Criterion criterion : otherProjectionsList) {
+        for (Criterion criterion : otherCriterionList) {
             criteria.add(criterion);
         }
 
+        if ( projectionList.getLength()>0){
+            criteria.setProjection(projectionList);
+
+        }
         //排序
         if (orderList.size()>0){
             for (Order order : orderList) {
@@ -388,8 +390,14 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
     }
 
     @Override
-    public LambdaCriteria<T> addProjection(Criterion criterion){
-        otherProjectionsList.add(criterion);
+    public LambdaCriteria<T> addCriterion(Criterion criterion){
+        otherCriterionList.add(criterion);
+        return this;
+    }
+
+    @Override
+    public LambdaCriteria<T> addProjection(Projection projection){
+        this.projectionList.add(projection);
         return this;
     }
 
