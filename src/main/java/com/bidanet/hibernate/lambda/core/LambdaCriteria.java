@@ -196,6 +196,22 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
      * @return
      */
     public Criteria createBuildCriteria(){
+        Criteria criteria = createBuildCriteriaNoOrder();
+        //排序
+        if (orderList.size()>0){
+            for (Order order : orderList) {
+                criteria.addOrder(order);
+            }
+        }
+
+
+
+
+        return criteria;
+    }
+
+
+    public Criteria createBuildCriteriaNoOrder(){
         Criteria criteria = session.createCriteria(tClass);
 //        criteria.createAlias()
 
@@ -249,21 +265,8 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
             criteria.setProjection(projectionList);
 
         }
-        //排序
-        if (orderList.size()>0){
-            for (Order order : orderList) {
-                criteria.addOrder(order);
-            }
-        }else{
-            criteria.addOrder(Order.desc(orderField));
-        }
-
-
-
-
         return criteria;
     }
-
     @Override
     public List<T> list(){
         return createBuildCriteria().list();
@@ -302,7 +305,7 @@ public class LambdaCriteria<T> implements ListCriteria<T>, CountCriteria,
     }
     @Override
     public Long count(String property){
-        Criteria criteria = createBuildCriteria();
+        Criteria criteria = createBuildCriteriaNoOrder();
         Long result = (Long) criteria.setProjection(Projections.count(property)).uniqueResult();
         if (result==null){
             result= 0L;
