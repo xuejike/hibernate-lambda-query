@@ -23,7 +23,8 @@ public abstract class GeterSeterMethodInterceptor implements MethodInterceptor {
             String property = PropertyNameTool.getProperty(methodName);
 
             lastPropertyName=property;
-            lastPropertyClass=objects[0].getClass();
+
+            lastPropertyClass=method.getParameterTypes()[0];
 
             execSeterMethod(o,method,property,objects[0]);
         }else if (PropertyNameTool.isGeter(methodName)){
